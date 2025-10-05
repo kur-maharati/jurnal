@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Pembelajaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fbbf24 0%, #3b82f6 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .photo-preview {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+        
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success animation with thumbs up person */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+        }
+
+        .success-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .thumbs-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transform: scale(0);
+            animation: scaleIn 0.6s ease-out forwards;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .person-icon {
+            font-size: 4rem;
+            opacity: 0;
+            animation: personAppear 0.4s ease-out 0.6s forwards;
+        }
+
+        .winking-eye {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            font-size: 1.2rem;
+            opacity: 0;
+            animation: winkAnimation 2s ease-in-out 1s infinite;
+        }
+
+        .success-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: textSlideUp 0.5s ease-out 1.2s forwards;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+            50% {
+                transform: scale(1.1) rotate(-90deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes personAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(45deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes winkAnimation {
+            0%, 20%, 50%, 80%, 100% {
+                opacity: 0;
+            }
+            10%, 40% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes textSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .gradient-bg {
+                padding: 1rem;
+            }
+            
+            .card-shadow {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 fade-in">
+            <div class="relative inline-block mb-6">
+                <!-- Elegant background circle with gradient -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-36 h-36 bg-gradient-to-br from-white/20 to-white/5 rounded-full backdrop-blur-sm"></div>
+                </div>
+                
+                <!-- Floating decorative elements -->
+                <div class="absolute -top-2 -right-2 w-4 h-4 bg-yellow-300 rounded-full opacity-80 animate-bounce"></div>
+                <div class="absolute -bottom-1 -left-3 w-3 h-3 bg-blue-300 rounded-full opacity-70 animate-bounce" style="animation-delay: 0.5s;"></div>
+                <div class="absolute top-1 -left-4 w-2 h-2 bg-white rounded-full opacity-60 animate-bounce" style="animation-delay: 1s;"></div>
+                <div class="absolute -top-3 left-8 w-2 h-2 bg-yellow-200 rounded-full opacity-50 animate-bounce" style="animation-delay: 1.5s;"></div>
+                <div class="absolute -bottom-2 right-6 w-3 h-3 bg-blue-200 rounded-full opacity-60 animate-bounce" style="animation-delay: 2s;"></div>
+                
+                <!-- Subtle rotating ring -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-32 h-32 border-2 border-dashed border-white/30 rounded-full animate-spin" style="animation-duration: 20s;"></div>
+                </div>
+                
+                <!-- Logo with enhanced styling -->
+                <div class="relative z-10 p-2">
+                    <div class="w-28 h-28 bg-white rounded-full p-1 shadow-2xl">
+                        <img src="https://iili.io/KWiqdUg.png" alt="Logo Sekolah" class="w-full h-full rounded-full object-cover">
+                    </div>
+                </div>
+            </div>
+            <h1 class="text-5xl font-bold text-white mb-2 tracking-wide">Jurnal Pembelajaran</h1>
+            <div class="w-24 h-1 bg-gradient-to-r from-yellow-300 to-blue-300 rounded-full mx-auto opacity-80"></div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="bg-white rounded-2xl card-shadow p-8 fade-in">
+            <form id="journalForm" class="space-y-6">
+                <!-- Row 1: Jam dan Tanggal -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">⏰ Jam Pelajaran</label>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs text-gray-600 mb-1">Dari Jam</label>
+                                <select id="dariJam" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none input-focus transition-all duration-300">
+                                    <option value="">Pilih</option>
+                                    <option value="1">Jam 1</option>
+                                    <option value="2">Jam 2</option>
+                                    <option value="3">Jam 3</option>
+                                    <option value="4">Jam 4</option>
+                                    <option value="5">Jam 5</option>
+                                    <option value="6">Jam 6</option>
+                                    <option value="7">Jam 7</option>
+                                    <option value="8">Jam 8</option>
+                                    <option value="9">Jam 9</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 mb-1">Sampai Jam</label>
+                                <select id="sampaiJam" required class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none input-focus transition-all duration-300">
+                                    <option value="">Pilih</option>
+                                    <option value="1">Jam 1</option>
+                                    <option value="2">Jam 2</option>
+                                    <option value="3">Jam 3</option>
+                                    <option value="4">Jam 4</option>
+                                    <option value="5">Jam 5</option>
+                                    <option value="6">Jam 6</option>
+                                    <option value="7">Jam 7</option>
+                                    <option value="8">Jam 8</option>
+                                    <option value="9">Jam 9</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="jumlahJam" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                            <span class="text-blue-700 font-semibold text-sm">📊 Jumlah Jam: <span id="totalJam">0</span> JP</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">📅 Tanggal</label>
+                        <input type="text" id="tanggal" readonly class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-600 cursor-not-allowed">
+                    </div>
+                </div>
+
+                <!-- Row 2: Kelas dan Guru -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">🏫 Kelas</label>
+                        <select id="kelas" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none input-focus transition-all duration-300">
+                            <option value="">Pilih Kelas</option>
+                            <option value="X DKV">X DKV</option>
+                            <option value="X TAB A">X TAB A</option>
+                            <option value="X TAB B">X TAB B</option>
+                            <option value="XI DKV">XI DKV</option>
+                            <option value="XI TAB A">XI TAB A</option>
+                            <option value="XI TAB B">XI TAB B</option>
+                            <option value="XII DKV">XII DKV</option>
+                            <option value="XII TAB A">XII TAB A</option>
+                            <option value="XII TAB B">XII TAB B</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">👨‍🏫 Guru</label>
+                        <select id="guru" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none input-focus transition-all duration-300">
+                            <option value="">Memuat data guru...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Mata Pelajaran -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📖 Mata Pelajaran</label>
+                    <input type="text" id="mataPelajaran" required placeholder="Masukkan mata pelajaran" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none input-focus transition-all duration-300">
+                </div>
+
+                <!-- Materi -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📝 Materi Pembelajaran</label>
+                    <textarea id="materi" required rows="4" placeholder="Jelaskan materi yang diajarkan hari ini..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none input-focus transition-all duration-300 resize-none"></textarea>
+                </div>
+
+                <!-- Foto -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📸 Foto Kegiatan <span class="text-red-500">*</span></label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-300">
+                        <div id="cameraSection">
+                            <button type="button" id="startCameraBtn" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold py-3 px-6 rounded-xl btn-hover transition-all duration-300">
+                                📷 Buka Kamera
+                            </button>
+                            <p class="text-gray-500 text-sm mt-2">Foto kegiatan wajib diambil untuk melengkapi jurnal</p>
+                        </div>
+                        
+                        <div id="cameraPreview" class="hidden">
+                            <video id="cameraVideo" autoplay playsinline class="w-full max-w-sm mx-auto rounded-xl border-4 border-gray-200 mb-4"></video>
+                            <div class="space-x-3">
+                                <button type="button" id="captureBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg btn-hover transition-all duration-300">
+                                    📸 Ambil Foto
+                                </button>
+                                <button type="button" id="closeCameraBtn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg btn-hover transition-all duration-300">
+                                    ❌ Tutup
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="photoPreview" class="mt-4 hidden">
+                            <img id="previewImage" class="photo-preview mx-auto border-4 border-white shadow-lg mb-4">
+                            <div class="space-x-3">
+                                <button type="button" id="retakeBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg btn-hover transition-all duration-300">
+                                    🔄 Ambil Ulang
+                                </button>
+                                <button type="button" id="usePhotoBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg btn-hover transition-all duration-300">
+                                    ✅ Gunakan Foto
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <canvas id="photoCanvas" class="hidden"></canvas>
+                        <input type="hidden" id="photoData" name="photoData">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center pt-4 space-y-3">
+                    <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl btn-hover transition-all duration-300 text-lg">
+                        💾 Simpan Jurnal
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="hidden mt-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-xl fade-in">
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">✅</span>
+                <div>
+                    <p class="font-semibold">Jurnal berhasil disimpan!</p>
+                    <p class="text-sm">Data telah tersimpan ke Google Sheets.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden mt-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-xl fade-in">
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">❌</span>
+                <div>
+                    <p class="font-semibold">Terjadi kesalahan!</p>
+                    <p class="text-sm" id="errorText">Silakan coba lagi.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Overlay -->
+        <div id="successOverlay" class="success-overlay">
+            <div class="success-animation">
+                <div class="thumbs-circle">
+                    <div class="person-icon">👍</div>
+                    <div class="winking-eye">😉</div>
+                </div>
+                <div class="success-text">Jurnal Tersimpan!</div>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center mt-8 pb-4">
+            <p class="text-white/70 text-sm font-medium">
+                © 2025 Kurikulum SMK Maharati
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Google Apps Script Web App URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgZQqUvGVJsJJLL5bjh-GvSFC_7YH97pYH90oSsUTstA21mZ7UzlMnzy3iT7j--BxpAw/exec';
+
+        // Set tanggal otomatis
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Jakarta'
+            };
+            const dateString = now.toLocaleDateString('id-ID', options);
+            document.getElementById('tanggal').value = dateString;
+        }
+
+        // Load guru langsung dari HTML
+        function loadGuru() {
+            const guruSelect = document.getElementById('guru');
+            
+            const daftarGuru = [
+                'Dra. Hj. Siti Aminah, M.Pd',
+                'Drs. H. Ahmad Fauzi, M.Pd', 
+                'Ir. Bambang Sutrisno, M.T',
+                'Dra. Ratna Dewi Sari, M.Pd',
+                'S.Pd. Andi Wijaya',
+                'S.Kom. Budi Hartono, M.Kom',
+                'Dra. Lina Marlina',
+                'S.Pd. Hendra Gunawan',
+                'S.Pd. Maya Kartika, M.Pd',
+                'S.Kom. Rudi Hermawan',
+                'Dra. Indah Permatasari',
+                'S.Pd. Yudi Prasetyo',
+                'S.Pd. Dewi Wulandari, M.Pd',
+                'S.Kom. Agus Setiawan, M.T',
+                'Dra. Rina Sari Dewi',
+                'S.Pd. Hadi Susanto, M.Pd',
+                'S.Kom. Fitri Handayani',
+                'S.Pd. Doni Kurniawan',
+                'Dra. Sri Wahyuni, M.Pd',
+                'S.Pd. Eko Prasetyo, M.T'
+            ];
+            
+            guruSelect.innerHTML = '<option value="">Pilih Guru</option>';
+            daftarGuru.forEach(nama => {
+                const option = document.createElement('option');
+                option.value = nama;
+                option.textContent = nama;
+                guruSelect.appendChild(option);
+            });
+            
+            console.log('✅ Data guru berhasil dimuat');
+        }
+
+        // Compress image function
+        function compressImage(base64, quality = 0.6, maxWidth = 600) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    // Calculate new dimensions
+                    let { width, height } = img;
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw and compress
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedBase64);
+                };
+                
+                img.src = base64;
+            });
+        }
+
+        // Kirim data ke Google Sheets (termasuk foto base64)
+        function saveToGoogleSheets(formData) {
+            return new Promise((resolve, reject) => {
+                console.log('📤 Mengirim data ke Google Sheets...');
+                
+                const dataToSend = {
+                    action: 'saveJurnal',
+                    data: formData
+                };
+                
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dataToSend)
+                })
+                .then(() => {
+                    console.log('✅ Data berhasil dikirim ke Google Sheets');
+                    resolve({ success: true, message: 'Data berhasil disimpan ke Google Sheets' });
+                })
+                .catch(error => {
+                    console.error('❌ Error mengirim ke Google Sheets:', error);
+                    reject({ success: false, error: 'Gagal mengirim data ke Google Sheets: ' + error.message });
+                });
+            });
+        }
+
+        // Hitung jumlah jam pelajaran
+        function hitungJumlahJam() {
+            const dariJam = parseInt(document.getElementById('dariJam').value);
+            const sampaiJam = parseInt(document.getElementById('sampaiJam').value);
+            const jumlahJamDiv = document.getElementById('jumlahJam');
+            const totalJamSpan = document.getElementById('totalJam');
+            
+            if (dariJam && sampaiJam && sampaiJam >= dariJam) {
+                const totalJam = sampaiJam - dariJam + 1;
+                totalJamSpan.textContent = totalJam;
+                jumlahJamDiv.classList.remove('hidden');
+            } else {
+                jumlahJamDiv.classList.add('hidden');
+            }
+        }
+
+        // Show success animation
+        function showSuccessAnimation() {
+            const overlay = document.getElementById('successOverlay');
+            overlay.style.display = 'flex';
+            overlay.classList.add('show');
+            
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 300);
+            }, 3000);
+        }
+
+        // Show message
+        function showMessage(type, message) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (type === 'success') {
+                showSuccessAnimation();
+                setTimeout(() => {
+                    successMsg.querySelector('p:last-child').textContent = message;
+                    successMsg.classList.remove('hidden');
+                    if (errorMsg) errorMsg.classList.add('hidden');
+                    setTimeout(() => successMsg.classList.add('hidden'), 5000);
+                }, 2500);
+            } else {
+                if (document.getElementById('errorText')) {
+                    document.getElementById('errorText').textContent = message;
+                }
+                if (errorMsg) errorMsg.classList.remove('hidden');
+                successMsg.classList.add('hidden');
+                setTimeout(() => {
+                    if (errorMsg) errorMsg.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('dariJam').addEventListener('change', hitungJumlahJam);
+        document.getElementById('sampaiJam').addEventListener('change', hitungJumlahJam);
+
+        // Camera functionality
+        let currentStream = null;
+        let capturedPhotoData = null;
+
+        // Start camera
+        document.getElementById('startCameraBtn').addEventListener('click', async function() {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Camera API tidak didukung di browser ini');
+                }
+
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>Membuka kamera...';
+                btn.disabled = true;
+
+                let constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280, max: 1920 },
+                        height: { ideal: 720, max: 1080 }
+                    }
+                };
+
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                } catch (backCameraError) {
+                    constraints.video.facingMode = 'user';
+                    try {
+                        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    } catch (frontCameraError) {
+                        constraints = { video: true };
+                        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    }
+                }
+
+                const video = document.getElementById('cameraVideo');
+                video.srcObject = currentStream;
+
+                video.onloadedmetadata = function() {
+                    video.play();
+                };
+
+                document.getElementById('cameraSection').classList.add('hidden');
+                document.getElementById('cameraPreview').classList.remove('hidden');
+                document.getElementById('photoPreview').classList.add('hidden');
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                
+                const btn = this;
+                btn.innerHTML = '📷 Buka Kamera';
+                btn.disabled = false;
+
+                let errorMessage = 'Tidak dapat mengakses kamera. ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'Izin kamera ditolak. Silakan izinkan akses kamera di browser.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage += 'Kamera tidak ditemukan di perangkat ini.';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage += 'Browser tidak mendukung akses kamera.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage += 'Kamera sedang digunakan aplikasi lain.';
+                } else {
+                    errorMessage += 'Error: ' + error.message;
+                }
+
+                showMessage('error', errorMessage);
+            }
+        });
+
+        // Capture photo
+        document.getElementById('captureBtn').addEventListener('click', function() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('photoCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            capturedPhotoData = canvas.toDataURL('image/jpeg', 0.8);
+
+            const previewImg = document.getElementById('previewImage');
+            previewImg.src = capturedPhotoData;
+            
+            document.getElementById('cameraPreview').classList.add('hidden');
+            document.getElementById('photoPreview').classList.remove('hidden');
+
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        });
+
+        // Close camera
+        document.getElementById('closeCameraBtn').addEventListener('click', function() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+            
+            document.getElementById('cameraPreview').classList.add('hidden');
+            document.getElementById('cameraSection').classList.remove('hidden');
+        });
+
+        // Retake photo
+        document.getElementById('retakeBtn').addEventListener('click', function() {
+            capturedPhotoData = null;
+            document.getElementById('photoData').value = '';
+            document.getElementById('photoPreview').classList.add('hidden');
+            document.getElementById('cameraSection').classList.remove('hidden');
+        });
+
+        // Use photo
+        document.getElementById('usePhotoBtn').addEventListener('click', function() {
+            if (capturedPhotoData) {
+                document.getElementById('photoData').value = capturedPhotoData;
+            }
+        });
+
+        // Validasi form
+        function validateForm() {
+            const errors = [];
+            
+            const dariJam = document.getElementById('dariJam').value;
+            const sampaiJam = document.getElementById('sampaiJam').value;
+            
+            if (!dariJam) errors.push('Dari Jam harus dipilih');
+            if (!sampaiJam) errors.push('Sampai Jam harus dipilih');
+            if (dariJam && sampaiJam && parseInt(sampaiJam) < parseInt(dariJam)) {
+                errors.push('Sampai Jam tidak boleh lebih kecil dari Dari Jam');
+            }
+            
+            const kelas = document.getElementById('kelas').value;
+            if (!kelas) errors.push('Kelas harus dipilih');
+            
+            const guru = document.getElementById('guru').value;
+            if (!guru || guru === 'Memuat data guru...') errors.push('Guru harus dipilih');
+            
+            const mataPelajaran = document.getElementById('mataPelajaran').value.trim();
+            if (!mataPelajaran) errors.push('Mata Pelajaran harus diisi');
+            
+            const materi = document.getElementById('materi').value.trim();
+            if (!materi) errors.push('Materi Pembelajaran harus diisi');
+            
+            const photoData = document.getElementById('photoData').value;
+            if (!capturedPhotoData && !photoData) errors.push('Foto kegiatan wajib diambil');
+            
+            return errors;
+        }
+
+        // Handle form submission
+        document.getElementById('journalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const errors = validateForm();
+            if (errors.length > 0) {
+                showMessage('error', `❌ ${errors[0]}`);
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2"></div>Menyimpan...';
+            submitBtn.disabled = true;
+            
+            try {
+                const dariJam = document.getElementById('dariJam').value;
+                const sampaiJam = document.getElementById('sampaiJam').value;
+                const jumlahJam = sampaiJam - dariJam + 1;
+                
+                let fotoBase64 = null;
+                
+                // Compress dan simpan foto sebagai base64
+                if (capturedPhotoData) {
+                    submitBtn.innerHTML = '<div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2"></div>Memproses foto...';
+                    
+                    try {
+                        console.log('📤 Compressing photo...');
+                        
+                        // Compress image untuk menghemat space
+                        fotoBase64 = await compressImage(capturedPhotoData, 0.6, 600);
+                        
+                        console.log('✅ Foto berhasil dikompres:', Math.round(fotoBase64.length / 1024) + 'KB');
+                        
+                    } catch (compressError) {
+                        console.error('❌ Error compressing photo:', compressError);
+                        fotoBase64 = capturedPhotoData; // fallback ke original
+                    }
+                }
+                
+                submitBtn.innerHTML = '<div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2"></div>Menyimpan data...';
+                
+                // Upload foto ke Google Drive dan dapatkan public URL
+                let fotoUrl = '';
+                if (fotoBase64) {
+                    submitBtn.innerHTML = '<div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2"></div>Mengupload foto...';
+                    
+                    try {
+                        // Kirim foto ke Google Apps Script untuk diupload ke Drive
+                        const uploadResponse = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                action: 'uploadPhoto',
+                                photoData: fotoBase64,
+                                fileName: `jurnal_${Date.now()}.jpg`
+                            })
+                        });
+                        
+                        console.log('✅ Foto berhasil diupload ke Google Drive');
+                        fotoUrl = `https://drive.google.com/uc?id=UPLOADED_FILE_ID`; // Will be handled by Apps Script
+                        
+                    } catch (uploadError) {
+                        console.error('❌ Error uploading photo:', uploadError);
+                        fotoUrl = 'Error uploading photo';
+                    }
+                }
+                
+                const formData = {
+                    tanggal: document.getElementById('tanggal').value,
+                    dariJam: dariJam,
+                    sampaiJam: sampaiJam,
+                    jumlahJam: jumlahJam,
+                    kelas: document.getElementById('kelas').value,
+                    guru: document.getElementById('guru').value,
+                    mataPelajaran: document.getElementById('mataPelajaran').value.trim(),
+                    materi: document.getElementById('materi').value.trim(),
+                    foto: fotoBase64 || 'Tidak ada foto', // Base64 untuk backup
+                    fotoUrl: fotoUrl, // URL Google Drive untuk IMAGE formula
+                    timestamp: new Date().toISOString()
+                };
+
+                console.log('📝 Data yang akan disimpan:', {
+                    ...formData,
+                    foto: fotoBase64 ? `${Math.round(fotoBase64.length / 1024)}KB base64` : 'Tidak ada foto',
+                    fotoBase64: fotoBase64 ? `${Math.round(fotoBase64.length / 1024)}KB base64` : null
+                });
+
+                const result = await saveToGoogleSheets(formData);
+                
+                if (result.success) {
+                    showMessage('success', 'Jurnal dan foto berhasil disimpan!');
+                    
+                    // Reset form
+                    document.getElementById('journalForm').reset();
+                    document.getElementById('photoPreview').classList.add('hidden');
+                    document.getElementById('cameraPreview').classList.add('hidden');
+                    document.getElementById('cameraSection').classList.remove('hidden');
+                    document.getElementById('jumlahJam').classList.add('hidden');
+                    capturedPhotoData = null;
+                    document.getElementById('photoData').value = '';
+                    setCurrentDate();
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    showMessage('error', result.error || 'Gagal menyimpan data. Silakan coba lagi.');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                showMessage('error', 'Terjadi kesalahan. Silakan coba lagi.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setCurrentDate();
+            loadGuru();
+            setInterval(setCurrentDate, 60000);
+            console.log('✅ Aplikasi siap digunakan dengan penyimpanan foto base64!');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989a7537d7170890',t:'MTc1OTY0MTUwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
